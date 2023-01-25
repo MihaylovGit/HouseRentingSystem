@@ -53,6 +53,7 @@ namespace HouseRentingSystem
             app.UseRouting();
 
             builder.Services.AddTransient<IHouseService, HouseService>();
+            builder.Services.AddTransient<IAgentService, AgentService>();
 
             app.UseAuthentication();
             app.UseAuthorization();

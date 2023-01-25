@@ -5,10 +5,10 @@ namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
-        //public IActionResult All()
-        //{
-        //    return View(new AllHousesQueryModel());
-        //}
+        public IActionResult All()
+        {
+            return View(new AllHousesQueryModel());
+        }
 
         //[Authorize]
         //public IActionResult Mine()
