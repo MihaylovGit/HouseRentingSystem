@@ -58,7 +58,7 @@ namespace HouseRentingSystem.Controllers
 
             this.agentService.Create(userId, agent.PhoneNumber);
 
-            return RedirectToAction(nameof(HousesController.All), "Houses");
+            return Ok();
         }
     }
 }

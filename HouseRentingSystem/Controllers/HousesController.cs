@@ -1,14 +1,28 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using HouseRentingSystem.Models;
+using HouseRentingSystem.Services.Contracts;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace HouseRentingSystem.Controllers
 {
     public class HousesController : Controller
     {
-        public IActionResult All()
+        private readonly IHouseService houseService;
+        private readonly IAgentService agentService;
+        private readonly UserManager<IdentityUser> userManager;
+
+        public HousesController(IHouseService houseService, IAgentService agentService, UserManager<IdentityUser> userManager)
         {
-            return View(new AllHousesQueryModel());
+            this.houseService = houseService;
+            this.agentService = agentService;
+            this.userManager = userManager;
         }
+
+        //public IActionResult All()
+        //{
+        //    return View(new AllHousesQueryModel());
+        //}
 
         //[Authorize]
         //public IActionResult Mine()
@@ -16,23 +30,55 @@ namespace HouseRentingSystem.Controllers
         //    return this.View(new AllHousesQueryModel());
         //}
 
-        //public IActionResult Details (int id)
-        //{
-        //    return View();
-        //}
+        public IActionResult Details(int id)
+        {
+            return this.View();
+        }
 
-        //[Authorize]
-        //public IActionResult Add(HouseFormModel house)
-        //{
-        //    => this.View();
-        //}
+        [Authorize]
+        public IActionResult Add()
+        {
+            if (!this.agentService.ExistsById(this.userManager.GetUserId(this.User)))
+            {
+                return RedirectToAction(nameof(AgentController.Become), "Agents");
+            }
 
-        //[Authorize]
-        //[HttpPost]
-        //public IActionResult Add(HouseFormModel house)
-        //{
-        //    => this.View();
-        //}
+            var viewModel = new HouseFormModel
+            {
+                Categories = this.houseService.AllCategories()
+            };
+
+            return this.View(viewModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult Add(HouseFormModel formInput)
+        {
+            if (!this.agentService.ExistsById(this.userManager.GetUserId(this.User)))
+            {
+                return RedirectToAction(nameof(AgentController.Become), "Agents");
+            }
+
+            if (!this.houseService.CategoryExists(formInput.CategoryId))
+            {
+                this.ModelState.AddModelError(nameof(formInput.CategoryId),
+                    "Category does not exist.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                formInput.Categories = this.houseService.AllCategories();
+
+                return this.View(formInput);
+            }
+
+            var agentId = this.agentService.GetAgentId(userManager.GetUserId(this.User));
+            var newHouseId = this.houseService.Create(formInput.Title, formInput.Address, formInput.Description,
+                formInput.ImageUrl, formInput.PricePerMonth, formInput.CategoryId, agentId);
+
+            return RedirectToAction(nameof(Details), new { id = newHouseId };
+        }
 
         //public IActionResult Edit(int id, HouseFormModel house)
         //{
