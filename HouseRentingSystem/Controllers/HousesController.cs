@@ -19,16 +19,30 @@ namespace HouseRentingSystem.Controllers
             this.userManager = userManager;
         }
 
-        //public IActionResult All()
-        //{
-        //    return View(new AllHousesQueryModel());
-        //}
+        public IActionResult All([FromQuery] AllHousesQueryModel query)
+        {
+             
+            var queryResult = this.houseService.All(
+                query.Category,
+                query.SearchTerm,
+                query.Sorting,
+                query.CurrentPage,
+                AllHousesQueryModel.HousesPerPage);
 
-        //[Authorize]
-        //public IActionResult Mine()
-        //{
-        //    return this.View(new AllHousesQueryModel());
-        //}
+            query.TotalHousesCount = queryResult.TotalHousesCount;
+            query.Houses = queryResult.Houses;
+
+            var houseCategories = this.houseService.AllCategoriesNames();
+            query.Categories = houseCategories;
+
+            return this.View(query);
+        }
+
+        [Authorize]
+        public IActionResult Mine()
+        {
+            return this.View(new AllHousesQueryModel());
+        }
 
         public IActionResult Details(int id)
         {
@@ -77,7 +91,7 @@ namespace HouseRentingSystem.Controllers
             var newHouseId = this.houseService.Create(formInput.Title, formInput.Address, formInput.Description,
                 formInput.ImageUrl, formInput.PricePerMonth, formInput.CategoryId, agentId);
 
-            return RedirectToAction(nameof(Details), new { id = newHouseId };
+            return RedirectToAction(nameof(Details), new { id = newHouseId } );
         }
 
         //public IActionResult Edit(int id, HouseFormModel house)

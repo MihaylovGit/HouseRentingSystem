@@ -35,6 +35,10 @@ namespace HouseRentingSystem
                   options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
               }).AddRazorRuntimeCompilation();
 
+
+            builder.Services.AddTransient<IHouseService, HouseService>();
+            builder.Services.AddTransient<IAgentService, AgentService>();
+
             var app = builder.Build();
 
             if (app.Environment.IsDevelopment())
@@ -52,8 +56,6 @@ namespace HouseRentingSystem
 
             app.UseRouting();
 
-            builder.Services.AddTransient<IHouseService, HouseService>();
-            builder.Services.AddTransient<IAgentService, AgentService>();
 
             app.UseAuthentication();
             app.UseAuthorization();
