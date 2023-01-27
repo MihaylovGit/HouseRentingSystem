@@ -99,7 +99,12 @@ namespace HouseRentingSystem.Services
 
         public IEnumerable<HouseServiceModel> AllHousesByUserId(string userId)
         {
-            throw new NotImplementedException();
+            var houses = this.data
+                             .Houses
+                             .Where(h => h.RenterId == userId)
+                             .ToList();
+
+            return ProjectToModel(houses);
         }
 
         public bool CategoryExists(int categoryId)
