@@ -19,5 +19,9 @@ namespace HouseRentingSystem.Services.Contracts
         int TotalHouseCount();
 
         IEnumerable<string> AllCategoriesNames();
+
+        IEnumerable<HouseServiceModel> AllHousesByAgentId(int agentId);
+
+        IEnumerable<HouseServiceModel> AllHousesByUserId(string userId);
     }
 }

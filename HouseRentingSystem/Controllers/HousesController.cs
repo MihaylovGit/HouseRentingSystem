@@ -1,5 +1,6 @@
 ﻿using HouseRentingSystem.Models;
 using HouseRentingSystem.Services.Contracts;
+using HouseRentingSystem.Services.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -41,7 +42,20 @@ namespace HouseRentingSystem.Controllers
         [Authorize]
         public IActionResult Mine()
         {
-            return this.View(new AllHousesQueryModel());
+            IEnumerable<HouseServiceModel> myHouses = null;
+            var userId = this.userManager.GetUserId(this.User);
+
+            if (this.agentService.ExistsById(userId))
+            {
+                var currentAgentId = this.agentService.GetAgentId(userId);
+                myHouses = this.houseService.AllHousesByAgentId(currentAgentId);
+            }
+            else
+            {
+                myHouses = this.houseService.AllHousesByUserId(userId);
+            }
+
+            return this.View(myHouses);
         }
 
         public IActionResult Details(int id)
@@ -54,7 +68,7 @@ namespace HouseRentingSystem.Controllers
         {
             if (!this.agentService.ExistsById(this.userManager.GetUserId(this.User)))
             {
-                return RedirectToAction(nameof(AgentController.Become), "Agents");
+                return RedirectToAction(nameof(AgentController.Become), "Agent");
             }
 
             var viewModel = new HouseFormModel

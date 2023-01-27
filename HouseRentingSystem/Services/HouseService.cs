@@ -75,6 +75,33 @@ namespace HouseRentingSystem.Services
                                        .ToList();
         }
 
+        public IEnumerable<HouseServiceModel> AllHousesByAgentId(int agentId)
+        {
+            var houses = this.data.Houses.Where(h => h.AgentId == agentId).ToList();
+
+            return ProjectToModel(houses);
+        }
+
+        private List<HouseServiceModel> ProjectToModel(List<House> houses)
+        {
+            var resultHouses = houses.Select(x => new HouseServiceModel
+            {
+                Id = x.Id,
+                Title = x.Title,
+                Address = x.Address,
+                ImageUrl = x.ImageUrl,
+                PricePerMonth = x.PricePerMonth,
+                IsRented = x.RenterId != null,
+            }).ToList();
+
+            return resultHouses;
+        }
+
+        public IEnumerable<HouseServiceModel> AllHousesByUserId(string userId)
+        {
+            throw new NotImplementedException();
+        }
+
         public bool CategoryExists(int categoryId)
         {
             return this.data.Categories.Any(c => c.Id == categoryId);
