@@ -58,6 +58,7 @@ namespace HouseRentingSystem.Controllers
             return this.View(myHouses);
         }
 
+        [Authorize]
         public IActionResult Details(int id)
         {
             if (!this.houseService.Exists(id))
@@ -115,10 +116,66 @@ namespace HouseRentingSystem.Controllers
             return RedirectToAction(nameof(Details), new { id = newHouseId } );
         }
 
-        //public IActionResult Edit(int id, HouseFormModel house)
-        //{
+        [Authorize]
+        public IActionResult Edit(int id)
+        {
+            if (!this.houseService.Exists(id))
+            {
+                return this.BadRequest();
+            }
 
-        //}
+            if (this.houseService.HasAgentWithId(id, this.userManager.GetUserId(this.User)))
+            {
+                return this.Unauthorized();
+            }
+
+            var house = this.houseService.HouseDetailsById(id);
+            var categoryId = this.houseService.GetHouseCategoryId(house.Id);
+
+            var houseModel = new HouseFormModel
+            {
+                Title = house.Title,
+                Address = house.Address,
+                Description = house.Description,
+                ImageUrl = house.ImageUrl,
+                PricePerMonth = house.PricePerMonth,
+                CategoryId = categoryId,
+                Categories = this.houseService.AllCategories(),
+            };
+
+            return this.View(houseModel);
+        }
+
+        [HttpPost]
+        [Authorize]
+        public IActionResult Edit(int id, HouseFormModel houseModel)
+        {
+            if (!this.ModelState.IsValid)
+            {
+                houseModel.Categories = this.houseService.AllCategories();
+
+                return this.View(houseModel);
+            }
+
+            if (!this.houseService.Exists(id))
+            {
+                return this.View();
+            }
+            
+            if (!this.houseService.HasAgentWithId(id, userManager.GetUserId(this.User)))
+            {
+                return this.Unauthorized();
+            }
+
+            if (!this.houseService.CategoryExists(houseModel.CategoryId))
+            {
+                this.ModelState.AddModelError(nameof(houseModel.CategoryId), "Category does not exist.");
+            }
+
+            this.houseService.Edit(id, houseModel.Title, houseModel.Address, houseModel.Description, houseModel.ImageUrl, houseModel.PricePerMonth, houseModel.CategoryId);
+
+            return this.RedirectToAction(nameof(Details), new {id = id });
+        }
 
         //[Authorize]
         //public IActionResult Delete(int id)
