@@ -23,5 +23,9 @@ namespace HouseRentingSystem.Services.Contracts
         IEnumerable<HouseServiceModel> AllHousesByAgentId(int agentId);
 
         IEnumerable<HouseServiceModel> AllHousesByUserId(string userId);
+
+        bool Exists(int id);
+
+        HouseDetailsServiceModel HouseDetailsById(int id);
     }
 }
