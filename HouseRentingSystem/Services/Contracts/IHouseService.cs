@@ -35,5 +35,11 @@ namespace HouseRentingSystem.Services.Contracts
         int GetHouseCategoryId(int houseId);
 
         void Delete(int houseId);
+
+        bool IsRented(int id);
+
+        bool IsRentedByUserWithId(int houseId, string userId);
+
+        void Rent(int houseId, string userId);
     }
 }

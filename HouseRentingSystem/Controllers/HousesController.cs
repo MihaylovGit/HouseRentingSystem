@@ -220,12 +220,31 @@ namespace HouseRentingSystem.Controllers
             return this.RedirectToAction(nameof(All));
         }
 
-        //[Authorize]
-        //[HttpPost]
-        //public IActionResult Rent(int id)
-        //{
-        //    return this.RedirectToAction(nameof(Mine));
-        //}
+        [Authorize]
+        [HttpPost]
+        public IActionResult Rent(int id)
+        {
+            var userId = this.userManager.GetUserId(this.User);
+
+            if (!this.houseService.Exists(id))
+            {
+                return this.BadRequest();
+            }
+
+            if (this.agentService.ExistsById(userId))
+            {
+                return this.Unauthorized();
+            }
+
+            if (this.houseService.IsRented(id))
+            {
+                return this.BadRequest();
+            }
+
+            this.houseService.Rent(id, userId);
+
+            return this.RedirectToAction(nameof(Mine));
+        }
 
         //[Authorize]
         //[HttpPost]

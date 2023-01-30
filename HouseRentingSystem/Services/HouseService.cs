@@ -220,5 +220,34 @@ namespace HouseRentingSystem.Services
 
             this.data.SaveChanges();
         }
+
+        public bool IsRented(int id)
+        {
+            return this.data.Houses.Find(id).RenterId != null;
+        }
+
+        public bool IsRentedByUserWithId(int houseId, string userId)
+        {
+            var house = this.data.Houses.Find(houseId);
+            if (house == null)
+            {
+                return false;
+            }
+
+            if (house.RenterId != userId)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public void Rent(int houseId, string userId)
+        {
+            var house = this.data.Houses.Find(houseId);
+            house.RenterId = userId;
+
+            this.data.SaveChanges();
+        }
     }
 }
