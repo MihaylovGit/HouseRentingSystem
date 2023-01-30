@@ -124,7 +124,7 @@ namespace HouseRentingSystem.Controllers
                 return this.BadRequest();
             }
 
-            if (this.houseService.HasAgentWithId(id, this.userManager.GetUserId(this.User)))
+            if (!this.houseService.HasAgentWithId(id, this.userManager.GetUserId(this.User)))
             {
                 return this.Unauthorized();
             }
@@ -177,18 +177,48 @@ namespace HouseRentingSystem.Controllers
             return this.RedirectToAction(nameof(Details), new {id = id });
         }
 
-        //[Authorize]
-        //public IActionResult Delete(int id)
-        //{
+        [Authorize]
+        public IActionResult Delete(int id)
+        {
+            if (!this.houseService.Exists(id))
+            {
+                return this.BadRequest();
+            }
 
-        //}
+            if (!this.houseService.HasAgentWithId(id, userManager.GetUserId(this.User)))
+            {
+                return this.Unauthorized();
+            }
 
-        //[Authorize]
-        //[HttpPost]
-        //public IActionResult Delete(HouseFormModel house)
-        //{
-        //    return RedirectToAction(nameof(All));
-        //}
+            var house = this.houseService.HouseDetailsById(id);
+
+            var houseModel = new HouseDetailsViewModel
+            {
+                Title = house.Title,
+                Address = house.Address,
+                ImageUrl = house.ImageUrl,
+            };
+
+            return this.View(houseModel);
+        }
+
+        [Authorize]
+        [HttpPost]
+        public IActionResult Delete(HouseDetailsViewModel houseModel)
+        {
+            if (!this.houseService.Exists(houseModel.Id))
+            {
+                return this.BadRequest();
+            }
+
+            if (!this.houseService.HasAgentWithId(houseModel.Id, userManager.GetUserId(this.User)))
+            {
+                return this.Unauthorized();
+            }
+
+            this.houseService.Delete(houseModel.Id);
+            return this.RedirectToAction(nameof(All));
+        }
 
         //[Authorize]
         //[HttpPost]

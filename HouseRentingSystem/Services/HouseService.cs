@@ -211,5 +211,14 @@ namespace HouseRentingSystem.Services
         {
             return this.data.Houses.Find(houseId).CategoryId;
         }
+
+        public void Delete(int houseId)
+        {
+            var house = this.data.Houses.FirstOrDefault(h => h.Id == houseId);
+
+            this.data.Houses.Remove(house);
+
+            this.data.SaveChanges();
+        }
     }
 }
